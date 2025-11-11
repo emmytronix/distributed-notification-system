@@ -1,0 +1,73 @@
+{
+  "rabbit_version": "3.12.0",
+  "vhosts": [{ "name": "/" }],
+  "queues": [
+    {
+      "name": "email.queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "notifications.dlx",
+        "x-dead-letter-routing-key": "failed",
+        "x-message-ttl": 86400000
+      }
+    },
+    {
+      "name": "push.queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "notifications.dlx",
+        "x-dead-letter-routing-key": "failed",
+        "x-message-ttl": 86400000
+      }
+    },
+    {
+      "name": "failed.queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "notifications.direct",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false
+    },
+    {
+      "name": "notifications.dlx",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false
+    }
+  ],
+  "bindings": [
+    {
+      "source": "notifications.direct",
+      "vhost": "/",
+      "destination": "email.queue",
+      "destination_type": "queue",
+      "routing_key": "email"
+    },
+    {
+      "source": "notifications.direct",
+      "vhost": "/",
+      "destination": "push.queue",
+      "destination_type": "queue",
+      "routing_key": "push"
+    },
+    {
+      "source": "notifications.dlx",
+      "vhost": "/",
+      "destination": "failed.queue",
+      "destination_type": "queue",
+      "routing_key": "failed"
+    }
+  ]
+}
