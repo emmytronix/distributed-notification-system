@@ -30,7 +30,7 @@ docker-compose ps
 - Redis (Cache)
 
 
-## 🏗️ Microservice Architecture Diagram
+## Microservice Architecture Diagram
 
 ![Microservice Architecture Diagram](assets/images/microservice-architecture.png)
 
