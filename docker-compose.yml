@@ -59,11 +59,40 @@ services:
     networks:
       - notification-network
 
-networks:
-  notification-network:
-    driver: bridge
+  # User Service - MOVED HERE under services!
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://notif_admin:notif_admin_password@postgres:5432/user_service_db
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - notification-network
+    restart: unless-stopped
 
+# These should be at the END, at root level
 volumes:
   postgres_data:
   redis_data:
   rabbitmq_data:
+
+networks:
+  notification-network:
+    driver: bridge
