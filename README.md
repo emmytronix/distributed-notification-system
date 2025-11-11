@@ -29,6 +29,14 @@ docker-compose ps
 - RabbitMQ (Message queue with DLQ)
 - Redis (Cache)
 
+
+## 🏗️ Microservice Architecture Diagram
+
+![Microservice Architecture Diagram](assets/images/microservice-architecture.png)
+
+
+
+
 ## Development
 
 See CONTRIBUTING.md for stacked PRs workflow.
