@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # PostgreSQL Database (3 separate databases)
@@ -139,6 +138,40 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - notification-network
+    restart: unless-stopped
+
+  # Email Service (No direct DB - uses Redis cache + audit logs)
+  email-service:
+    build:
+      context: ./services/email-service
+      dockerfile: Dockerfile
+    container_name: email-service
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      RABBITMQ_URL: amqp://rabbit_user:rabbit_password@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+      TEMPLATE_SERVICE_URL: http://template-service:3004
+      NOTIFICATION_LOGS_DB_URL: postgresql://notif_admin:notif_admin_password@postgres:5432/notification_logs_db
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
+    ports:
+      - "3002:3002"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      template-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002/health"]
       interval: 30s
       timeout: 10s
       retries: 3
